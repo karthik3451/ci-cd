@@ -52,7 +52,6 @@ jobs:
 
       - name: Update Kubernetes deployment
         run: |
-          kubectl set image deployment/my-app-deployment my-app=${{ secrets.ECR_REGISTRY }}/my-app:${{ github.sha }}
           kubectl apply -f kubernetes/deployment.yaml
           kubectl apply -f kubernetes/service.yaml
           kubectl apply -f kubernetes/ingress.yaml
