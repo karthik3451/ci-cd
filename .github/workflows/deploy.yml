@@ -39,7 +39,7 @@ jobs:
 
       - name: Push Docker image
         run: |
-          docker push 654654623105.dkr.ecr.us-east-1.amazonaws.com/my-app:${{ github.sha }}
+          docker push 654654623105.dkr.ecr.us-east-1.amazonaws.com/my-app:latest
 
       - name: Set up kubectl
         uses: azure/setup-kubectl@v1
