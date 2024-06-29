@@ -33,6 +33,7 @@ jobs:
         run: |
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 654654623105.dkr.ecr.us-east-1.amazonaws.com/my-app
 
+
       - name: Build Docker image
         run: |
           docker build -t 654654623105.dkr.ecr.us-east-1.amazonaws.com/my-app:latest -f src/app/Dockerfile .
