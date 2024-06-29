@@ -30,6 +30,7 @@ jobs:
           docker build -t $ECR_REGISTRY/$IMAGE_NAME:$GITHUB_SHA .
           docker push $ECR_REGISTRY/$IMAGE_NAME:$GITHUB_SHA
 
+
       - name: Update Kubernetes deployment
         run: |
           kubectl apply -f kubernetes/deployment.yaml
