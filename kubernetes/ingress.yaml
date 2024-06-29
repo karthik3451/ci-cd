@@ -6,7 +6,7 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-    - host: mydomain.com
+    - host: placeholder.example.com  # Replace with your domain or use a placeholder
       http:
         paths:
           - path: /
