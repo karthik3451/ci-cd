@@ -1,0 +1,39 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build the app
+        run: npm run build
+
+      - name: Test the app
+        run: npm test
+
+      - name: Build Docker image
+        run: |
+          docker build -t <your-dockerhub-username>/my-app:$GITHUB_SHA .
+          echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+          docker push <your-dockerhub-username>/my-app:$GITHUB_SHA
+
+      - name: Deploy to EKS
+        run: |
+          aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name my-eks-cluster
+          kubectl set image deployment/my-app my-app=<your-dockerhub-username>/my-app:$GITHUB_SHA
