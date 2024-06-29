@@ -31,15 +31,15 @@ jobs:
 
       - name: Login to AWS ECR
         run: |
-          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
+          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 654654623105.dkr.ecr.us-east-1.amazonaws.com/my-app
 
       - name: Build Docker image
         run: |
-          docker build -t src/app/Dockerfile .
+          docker build -t 654654623105.dkr.ecr.us-east-1.amazonaws.com/my-app:latest -f src/app/Dockerfile .
 
       - name: Push Docker image
         run: |
-          docker push ${{ secrets.ECR_REGISTRY }}/my-app:${{ github.sha }}
+          docker push 654654623105.dkr.ecr.us-east-1.amazonaws.com/my-app:${{ github.sha }}
 
       - name: Set up kubectl
         uses: azure/setup-kubectl@v1
