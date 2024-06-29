@@ -6,34 +6,28 @@ on:
       - main
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14'
+      - name: Login to AWS ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build the app
-        run: npm run build
-
-      - name: Test the app
-        run: npm test
-
-      - name: Build Docker image
+      - name: Build and push Docker image
+        env:
+          AWS_REGION: us-east-1
+          ECR_REGISTRY: <aws_account_id>.dkr.ecr.us-east-1.amazonaws.com
+          IMAGE_NAME: my-app
         run: |
-          docker build -t <your-dockerhub-username>/my-app:$GITHUB_SHA .
-          echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker push <your-dockerhub-username>/my-app:$GITHUB_SHA
+          docker build -t $ECR_REGISTRY/$IMAGE_NAME:$GITHUB_SHA .
+          docker push $ECR_REGISTRY/$IMAGE_NAME:$GITHUB_SHA
 
-      - name: Deploy to EKS
+      - name: Update Kubernetes deployment
         run: |
-          aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name my-eks-cluster
-          kubectl set image deployment/my-app my-app=<your-dockerhub-username>/my-app:$GITHUB_SHA
+          kubectl apply -f kubernetes/deployment.yaml
+          kubectl apply -f kubernetes/service.yaml
+          kubectl apply -f kubernetes/ingress.yaml
