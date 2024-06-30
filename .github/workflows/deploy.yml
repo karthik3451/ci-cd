@@ -31,17 +31,21 @@ jobs:
 
       - name: Login to AWS ECR
         run: |
-          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 654654623105.dkr.ecr.us-east-1.amazonaws.com/my-app
+          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 654654623105.dkr.ecr.us-east-1.amazonaws.com
 
 
       - name: Build Docker image
         run: |
-          docker build -t 654654623105.dkr.ecr.us-east-1.amazonaws.com/my-app:latest -f src/app/Dockerfile .
+          docker build -t my-app .
+
+      - name: tag Docker image
+        run: |
+            docker tag my-app:latest 654654623105.dkr.ecr.us-east-1.amazonaws.com/my-app:latest
 
       - name: Push Docker image
         run: |
           docker push 654654623105.dkr.ecr.us-east-1.amazonaws.com/my-app:latest
-
+          
       - name: Set up kubectl
         uses: azure/setup-kubectl@v1
         with:
