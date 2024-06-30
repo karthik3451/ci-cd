@@ -38,10 +38,6 @@ jobs:
         run: |
           docker build -t 654654623105.dkr.ecr.us-east-1.amazonaws.com/my-app:latest -f src/app/Dockerfile .
 
-      - name: tag Docker image
-        run: |
-            docker tag my-app:latest 654654623105.dkr.ecr.us-east-1.amazonaws.com/my-app:latest
-
       - name: Push Docker image
         run: |
           docker push 654654623105.dkr.ecr.us-east-1.amazonaws.com/my-app:latest
