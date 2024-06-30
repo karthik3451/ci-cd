@@ -13,6 +13,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'  # Set your desired Node.js version
+
+      - name: Install npm dependencies
+        run: |
+          npm install
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -22,15 +31,16 @@ jobs:
 
       - name: Login to AWS ECR
         run: |
-          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
+          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 654654623105.dkr.ecr.us-east-1.amazonaws.com/my-app
+
 
       - name: Build Docker image
         run: |
-          docker build -t ${{ secrets.ECR_REGISTRY }}/src/app/:${{ github.sha }} .
+          docker build -t 654654623105.dkr.ecr.us-east-1.amazonaws.com/my-app:latest -f src/app/Dockerfile .
 
       - name: Push Docker image
         run: |
-          docker push ${{ secrets.ECR_REGISTRY }}/my-app:${{ github.sha }}
+          docker push 654654623105.dkr.ecr.us-east-1.amazonaws.com/my-app:latest
 
       - name: Set up kubectl
         uses: azure/setup-kubectl@v1
@@ -41,9 +51,10 @@ jobs:
         run: |
           aws eks update-kubeconfig --region us-east-1 --name my-cluster
 
+
+
       - name: Update Kubernetes deployment
         run: |
-          kubectl set image deployment/my-app-deployment my-app=${{ secrets.ECR_REGISTRY }}/my-app:${{ github.sha }}
           kubectl apply -f kubernetes/deployment.yaml
           kubectl apply -f kubernetes/service.yaml
           kubectl apply -f kubernetes/ingress.yaml
