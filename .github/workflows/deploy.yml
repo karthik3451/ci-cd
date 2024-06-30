@@ -36,7 +36,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t my-app .
+          docker build -t 654654623105.dkr.ecr.us-east-1.amazonaws.com/my-app:latest -f src/app/Dockerfile .
 
       - name: tag Docker image
         run: |
