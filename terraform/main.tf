@@ -35,18 +35,25 @@ resource "aws_subnet" "eks_subnet2" {
   }
 }
 
-# Define IAM role for EKS service
+# Define IAM role for EKS service with updated trust policy
 resource "aws_iam_role" "eks_role" {
   name = "eks-role"
 
   assume_role_policy = jsonencode({
-    Version = "2012-10-17"
+    Version = "2012-10-17",
     Statement = [
       {
-        Effect    = "Allow"
+        Effect    = "Allow",
         Principal = {
           Service = "eks.amazonaws.com"
-        }
+        },
+        Action = "sts:AssumeRole"
+      },
+      {
+        Effect    = "Allow",
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        },
         Action = "sts:AssumeRole"
       }
     ]
@@ -56,7 +63,7 @@ resource "aws_iam_role" "eks_role" {
 # Define EKS cluster
 resource "aws_eks_cluster" "eks_cluster" {
   name     = "my-cluster"
-  role_arn = aws_iam_role.eks_role.arn
+  role_arn = "arn:aws:iam::654654623105:role/eks-role"  # Replace with your IAM role ARN for EKS
 
   vpc_config {
     subnet_ids = [
@@ -64,16 +71,31 @@ resource "aws_eks_cluster" "eks_cluster" {
       aws_subnet.eks_subnet2.id,
       # Add more subnet IDs from different AZs if needed
     ]
-
-    # Other configurations can be added here if needed
-    # For example:
-    # cluster_security_group_id = aws_security_group.eks_cluster_sg.id
-    # endpoint_private_access = false
-    # endpoint_public_access = true
-    # public_access_cidrs = ["0.0.0.0/0"]
   }
 
   depends_on = [aws_iam_role.eks_role]  # Ensure IAM role is created before EKS cluster
+}
+
+# Define EKS node group with updated IAM role and a new name
+resource "aws_eks_node_group" "eks_nodes" {
+  cluster_name    = aws_eks_cluster.eks_cluster.name
+  node_group_name = "my-node-group-1"
+  node_role_arn   = "arn:aws:iam::654654623105:role/eks-role"  # Replace with your IAM role ARN for EKS
+
+
+  subnet_ids      = [
+    aws_subnet.eks_subnet1.id,
+    aws_subnet.eks_subnet2.id,
+    # Add more subnet IDs if needed
+  ]
+
+  scaling_config {
+    desired_size = 2  # Adjust based on your needs
+    max_size     = 3  # Adjust based on your needs
+    min_size     = 1  # Adjust based on your needs
+  }
+
+  depends_on = [aws_eks_cluster.eks_cluster]  # Ensure EKS cluster is created before node group
 }
 
 # Output EKS cluster details
